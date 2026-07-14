@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router";
 
 import CustomerLayout from "./components/layout/CustomerLayout";
 import AdminLayout from "./components/layout/AdminLayout";
+import EmployeeLayout from "./components/layout/EmployeeLayout";
 import AuthLayout from "./components/layout/AuthLayout";
 import ProtectedRoute from "./components/route/ProtectedRoute";
 
@@ -91,7 +92,7 @@ function App() {
         path="/employee"
         element={
           <ProtectedRoute allowedRoles={["employee"]}>
-            <AdminLayout />
+            <EmployeeLayout />
           </ProtectedRoute>
         }
       >
