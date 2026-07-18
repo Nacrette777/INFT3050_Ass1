@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { getCurrentUser, logout } from "../../services/authService";
+import "../../styles/customer-account.css";
 
 // Read this customer's saved orders without crashing on bad localStorage data.
 function readCustomerOrders(username) {
@@ -17,11 +18,36 @@ function getOrderTotal(order) {
   return Number.isFinite(total) ? total : 0;
 }
 
+// Persist profile edits to the same localStorage keys used by Login/Register.
+function persistUser(updatedUser) {
+  localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+  try {
+    const registered = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
+    const next = registered.map((u) =>
+      u.username === updatedUser.username ? { ...u, ...updatedUser } : u
+    );
+    localStorage.setItem("registeredUsers", JSON.stringify(next));
+  } catch {
+    // A corrupted registeredUsers list should not block the session update.
+  }
+}
+
 function CustomerProfile() {
   const navigate = useNavigate();
-  // Initialize from authService once to avoid extra renders during page load.
-  const [user] = useState(() => getCurrentUser());
+  const [user, setUser] = useState(() => getCurrentUser());
   const [orders] = useState(() => (user ? readCustomerOrders(user.username) : []));
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "" });
+  const [formErrors, setFormErrors] = useState({});
+
+  const [passwordForm, setPasswordForm] = useState({
+    current: "",
+    next: "",
+    confirm: "",
+  });
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -37,7 +63,6 @@ function CustomerProfile() {
   const stats = useMemo(() => {
     const completedOrders = orders.filter((order) => order?.status === "Completed");
 
-    // Profile summary cards are derived from the customer's stored orders.
     return [
       { label: "Total Orders", value: orders.length },
       { label: "Completed", value: completedOrders.length },
@@ -56,7 +81,6 @@ function CustomerProfile() {
 
   const displayName = user.name || user.username || "Customer";
   const email = user.email || user.username || "Not provided";
-  // Use the first letters of the display name for the profile avatar.
   const initials = displayName
     .split(" ")
     .map((part) => part[0])
@@ -64,71 +88,324 @@ function CustomerProfile() {
     .slice(0, 2)
     .toUpperCase();
 
+  function startEditing() {
+    setForm({ name: user.name || "", email: user.email || "" });
+    setFormErrors({});
+    setNotice("");
+    setIsEditing(true);
+  }
+
+  function cancelEditing() {
+    setIsEditing(false);
+    setFormErrors({});
+  }
+
+  function handleFieldChange(event) {
+    const { name, value } = event.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setFormErrors((prev) => ({ ...prev, [name]: "" }));
+  }
+
+  function handleProfileSave(event) {
+    event.preventDefault();
+
+    const nextErrors = {};
+    if (!form.name.trim() || form.name.trim().length < 2)
+      nextErrors.name = "Name must be at least 2 characters.";
+    if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      nextErrors.email = "Please enter a valid email address.";
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFormErrors(nextErrors);
+      return;
+    }
+
+    const updated = { ...user, name: form.name.trim(), email: form.email.trim() };
+    persistUser(updated);
+    setUser(updated);
+    setIsEditing(false);
+    setNotice("Profile updated.");
+  }
+
+  function handlePasswordChange(event) {
+    const { name, value } = event.target;
+    setPasswordForm((prev) => ({ ...prev, [name]: value }));
+    setPasswordErrors((prev) => ({ ...prev, [name]: "" }));
+  }
+
+  function handlePasswordSave(event) {
+    event.preventDefault();
+
+    const nextErrors = {};
+    if (user.password && passwordForm.current !== user.password)
+      nextErrors.current = "Current password is incorrect.";
+    if (!passwordForm.next || passwordForm.next.length < 6)
+      nextErrors.next = "New password must be at least 6 characters.";
+    if (passwordForm.confirm !== passwordForm.next)
+      nextErrors.confirm = "Passwords do not match.";
+
+    if (Object.keys(nextErrors).length > 0) {
+      setPasswordErrors(nextErrors);
+      return;
+    }
+
+    const updated = { ...user, password: passwordForm.next };
+    persistUser(updated);
+    setUser(updated);
+    setPasswordForm({ current: "", next: "", confirm: "" });
+    setNotice("Password updated.");
+  }
+
   return (
-    <section>
-      <h1>My Account</h1>
+    <section className="mg-account">
+      <div className="mg-account-shell">
+        <h1 className="mg-page-title">My Account</h1>
 
-      <div className="profile-layout">
-        <aside className="profile-sidebar">
-          <Link to="/customer/profile">
-            <button className="profile-nav-active">My Profile</button>
-          </Link>
-          <Link to="/customer/orders">
-            <button>Order History</button>
-          </Link>
-          <button className="danger-button" onClick={handleLogout}>
-            Sign Out
-          </button>
-        </aside>
+        <div className="mg-account-grid">
+          {/* ---------- left column ---------- */}
+          <aside className="mg-side-card">
+            <div className="mg-avatar">{initials || "?"}</div>
+            <h2 className="mg-side-name">{displayName}</h2>
+            <p className="mg-side-email">{email}</p>
+            <span className="mg-badge">Guild Member</span>
 
-        <main className="profile-content">
-          <div className="profile-card profile-hero">
-            <div className="profile-avatar">{initials || "?"}</div>
-            <div>
-              <h2>{displayName}</h2>
-              <p>{email}</p>
-              <span className="member-badge">Trade Member</span>
-            </div>
-          </div>
-
-          <div className="profile-stats">
-            {stats.map((stat) => (
-              <div className="profile-stat-card" key={stat.label}>
-                <div>{stat.value}</div>
-                <span>{stat.label}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="profile-card">
-            <h2>Personal Information</h2>
-            <p>
-              <strong>Name:</strong> {displayName}
-            </p>
-            <p>
-              <strong>Username:</strong> {user.username || "Not provided"}
-            </p>
-            <p>
-              <strong>Email:</strong> {email}
-            </p>
-            <p>
-              <strong>Role:</strong> {user.role || "customer"}
-            </p>
-          </div>
-
-          <div className="profile-card profile-actions-card">
-            <h2>Account Shortcuts</h2>
-            <p>Review past orders, continue shopping, or sign out of this account.</p>
-            <div className="profile-action-row">
-              <Link className="button-link" to="/customer/orders">
-                View Order History
+            <nav className="mg-side-nav">
+              <Link className="mg-side-link is-active" to="/customer/profile">
+                Profile
               </Link>
-              <Link className="secondary-button" to="/customer/products">
+              <Link className="mg-side-link" to="/customer/orders">
+                Order History
+              </Link>
+              <Link className="mg-side-link" to="/customer/products">
                 Continue Shopping
               </Link>
+              <button
+                type="button"
+                className="mg-btn mg-btn--danger mg-btn--block"
+                onClick={handleLogout}
+              >
+                Sign Out
+              </button>
+            </nav>
+          </aside>
+
+          {/* ---------- right column ---------- */}
+          <main className="mg-account-main">
+            {notice && <p className="mg-alert mg-alert--success">{notice}</p>}
+
+            <div className="mg-stats">
+              {stats.map((stat) => (
+                <div className="mg-stat" key={stat.label}>
+                  <div className="mg-stat-value">{stat.value}</div>
+                  <span className="mg-stat-label">{stat.label}</span>
+                </div>
+              ))}
             </div>
-          </div>
-        </main>
+
+            {/* Personal Information */}
+            <div className="mg-card">
+              <div className="mg-card-head">
+                <h2 className="mg-card-title">Personal Information</h2>
+                {!isEditing && (
+                  <button
+                    type="button"
+                    className="mg-btn mg-btn--ghost mg-btn--small"
+                    onClick={startEditing}
+                  >
+                    Edit Profile
+                  </button>
+                )}
+              </div>
+
+              {isEditing ? (
+                <form className="mg-form" onSubmit={handleProfileSave} noValidate>
+                  <div className="mg-form-grid">
+                    <div className="mg-field">
+                      <label className="mg-label" htmlFor="profile-name">
+                        Name
+                      </label>
+                      <input
+                        id="profile-name"
+                        name="name"
+                        type="text"
+                        className={`mg-input${
+                          formErrors.name ? " mg-input--error" : ""
+                        }`}
+                        value={form.name}
+                        onChange={handleFieldChange}
+                      />
+                      {formErrors.name && (
+                        <span className="mg-field-error">{formErrors.name}</span>
+                      )}
+                    </div>
+
+                    <div className="mg-field">
+                      <label className="mg-label" htmlFor="profile-email">
+                        Email
+                      </label>
+                      <input
+                        id="profile-email"
+                        name="email"
+                        type="email"
+                        className={`mg-input${
+                          formErrors.email ? " mg-input--error" : ""
+                        }`}
+                        value={form.email}
+                        onChange={handleFieldChange}
+                      />
+                      {formErrors.email && (
+                        <span className="mg-field-error">{formErrors.email}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mg-form-actions">
+                    <button type="submit" className="mg-btn mg-btn--gold">
+                      Save Changes
+                    </button>
+                    <button
+                      type="button"
+                      className="mg-btn mg-btn--ghost"
+                      onClick={cancelEditing}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="mg-info-grid">
+                  <div className="mg-info-item">
+                    <span className="mg-info-label">Name</span>
+                    <p className="mg-info-value">{displayName}</p>
+                  </div>
+                  <div className="mg-info-item">
+                    <span className="mg-info-label">Email</span>
+                    <p className="mg-info-value">{email}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Account Information */}
+            <div className="mg-card">
+              <div className="mg-card-head">
+                <h2 className="mg-card-title">Account Information</h2>
+              </div>
+              <div className="mg-info-grid">
+                <div className="mg-info-item">
+                  <span className="mg-info-label">Username</span>
+                  <p className="mg-info-value">{user.username || "Not provided"}</p>
+                </div>
+                <div className="mg-info-item">
+                  <span className="mg-info-label">Account Type</span>
+                  <p className="mg-info-value">{user.role || "customer"}</p>
+                </div>
+                <div className="mg-info-item">
+                  <span className="mg-info-label">Member Since</span>
+                  <p className="mg-info-value">
+                    {user.joinedAt
+                      ? new Date(user.joinedAt).toLocaleDateString("en-AU")
+                      : "Not available"}
+                  </p>
+                </div>
+                <div className="mg-info-item">
+                  <span className="mg-info-label">Orders Placed</span>
+                  <p className="mg-info-value">{orders.length}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Change Password */}
+            <div className="mg-card">
+              <div className="mg-card-head">
+                <h2 className="mg-card-title">Change Password</h2>
+              </div>
+              <p className="mg-card-note">
+                Use at least 6 characters. You will stay signed in after saving.
+              </p>
+
+              <form className="mg-form" onSubmit={handlePasswordSave} noValidate>
+                <div className="mg-field">
+                  <label className="mg-label" htmlFor="password-current">
+                    Current Password
+                  </label>
+                  <input
+                    id="password-current"
+                    name="current"
+                    type="password"
+                    className={`mg-input${
+                      passwordErrors.current ? " mg-input--error" : ""
+                    }`}
+                    value={passwordForm.current}
+                    onChange={handlePasswordChange}
+                    autoComplete="current-password"
+                  />
+                  {passwordErrors.current && (
+                    <span className="mg-field-error">{passwordErrors.current}</span>
+                  )}
+                </div>
+
+                <div className="mg-form-grid">
+                  <div className="mg-field">
+                    <label className="mg-label" htmlFor="password-next">
+                      New Password
+                    </label>
+                    <input
+                      id="password-next"
+                      name="next"
+                      type="password"
+                      className={`mg-input${
+                        passwordErrors.next ? " mg-input--error" : ""
+                      }`}
+                      value={passwordForm.next}
+                      onChange={handlePasswordChange}
+                      autoComplete="new-password"
+                    />
+                    {passwordErrors.next && (
+                      <span className="mg-field-error">{passwordErrors.next}</span>
+                    )}
+                  </div>
+
+                  <div className="mg-field">
+                    <label className="mg-label" htmlFor="password-confirm">
+                      Confirm New Password
+                    </label>
+                    <input
+                      id="password-confirm"
+                      name="confirm"
+                      type="password"
+                      className={`mg-input${
+                        passwordErrors.confirm ? " mg-input--error" : ""
+                      }`}
+                      value={passwordForm.confirm}
+                      onChange={handlePasswordChange}
+                      autoComplete="new-password"
+                    />
+                    {passwordErrors.confirm && (
+                      <span className="mg-field-error">{passwordErrors.confirm}</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mg-form-actions">
+                  <button type="submit" className="mg-btn mg-btn--gold">
+                    Save Changes
+                  </button>
+                  <button
+                    type="button"
+                    className="mg-btn mg-btn--ghost"
+                    onClick={() => {
+                      setPasswordForm({ current: "", next: "", confirm: "" });
+                      setPasswordErrors({});
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </main>
+        </div>
       </div>
     </section>
   );

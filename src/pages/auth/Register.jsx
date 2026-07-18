@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import "../../styles/customer-account.css";
 
 function Register() {
   const navigate = useNavigate();
@@ -11,31 +12,28 @@ function Register() {
     confirmPassword: "",
   });
 
-  const [errors, setErrors]         = useState({});
-  const [showPassword, setShowPassword]   = useState(false);
-  const [showConfirm, setShowConfirm]     = useState(false);
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
-  const [loading, setLoading]       = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // 计算密码强度 (0–4)
+  // Password strength (0-4)
   function calcStrength(val) {
     let score = 0;
-    if (val.length >= 8)            score++;
-    if (/[A-Z]/.test(val))          score++;
-    if (/[0-9]/.test(val))          score++;
-    if (/[^a-zA-Z0-9]/.test(val))  score++;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^a-zA-Z0-9]/.test(val)) score++;
     return score;
   }
 
   const strengthLabels = ["", "Weak", "Fair", "Good", "Strong"];
-  const strengthColors = ["", "#d32f2f", "#f57c00", "#1976d2", "#388e3c"];
 
   function handleChange(event) {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
-    // 清除对应字段的错误
     setErrors((prev) => ({ ...prev, [name]: "" }));
-    // 实时更新密码强度
     if (name === "password") setPasswordStrength(calcStrength(value));
   }
 
@@ -62,7 +60,7 @@ function Register() {
 
     setLoading(true);
 
-    // 把新用户存入 localStorage（与 authService 格式保持兼容）
+    // Store the new user in localStorage (same format as authService)
     const existingUsers = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
     const emailTaken = existingUsers.find((u) => u.email === formData.email);
     if (emailTaken) {
@@ -83,154 +81,144 @@ function Register() {
     existingUsers.push(newUser);
     localStorage.setItem("registeredUsers", JSON.stringify(existingUsers));
 
-    alert("Account created successfully! Please sign in.");
     navigate("/login");
   }
 
   return (
-    <section className="register-page">
-      <h1>Create Account</h1>
-      <p style={{ color: "#666", marginBottom: "20px" }}>
-        Join Trade Web today
-      </p>
+    <section className="mg-auth">
+      <div className="mg-auth-card mg-auth-card--wide">
+        <h1 className="mg-auth-title">Register</h1>
+        <p className="mg-auth-subtitle">Create your Entertainment Guild account</p>
 
-      <form onSubmit={handleSubmit} className="auth-form" noValidate>
-
-        {/* Name */}
-        <label>
-          Full Name
-          <input
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Your full name"
-            autoComplete="name"
-          />
-          {errors.name && (
-            <span className="error-message" style={{ fontSize: "0.8rem" }}>
-              {errors.name}
-            </span>
-          )}
-        </label>
-
-        {/* Email */}
-        <label>
-          Email Address
-          <input
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="you@example.com"
-            autoComplete="email"
-          />
-          {errors.email && (
-            <span className="error-message" style={{ fontSize: "0.8rem" }}>
-              {errors.email}
-            </span>
-          )}
-        </label>
-
-        {/* Password */}
-        <label>
-          Password
-          <div style={{ position: "relative" }}>
+        <form onSubmit={handleSubmit} className="mg-form" noValidate>
+          {/* Name */}
+          <div className="mg-field">
+            <label className="mg-label" htmlFor="register-name">
+              Name
+            </label>
             <input
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={formData.password}
+              id="register-name"
+              name="name"
+              type="text"
+              className={`mg-input${errors.name ? " mg-input--error" : ""}`}
+              value={formData.name}
               onChange={handleChange}
-              placeholder="Min. 6 characters"
-              autoComplete="new-password"
-              style={{ paddingRight: "40px", width: "100%" }}
+              placeholder="Your full name"
+              autoComplete="name"
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              style={{
-                position: "absolute", right: "8px", top: "50%",
-                transform: "translateY(-50%)", background: "none",
-                border: "none", cursor: "pointer", padding: "0",
-                color: "#666", fontSize: "0.8rem",
-              }}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
+            {errors.name && <span className="mg-field-error">{errors.name}</span>}
           </div>
-          {/* 密码强度条 */}
-          {formData.password.length > 0 && (
-            <div style={{ marginTop: "6px" }}>
-              <div
-                style={{
-                  height: "4px",
-                  background: "#e0e0e0",
-                  borderRadius: "2px",
-                  overflow: "hidden",
-                }}
+
+          {/* Email */}
+          <div className="mg-field">
+            <label className="mg-label" htmlFor="register-email">
+              Email
+            </label>
+            <input
+              id="register-email"
+              name="email"
+              type="email"
+              className={`mg-input${errors.email ? " mg-input--error" : ""}`}
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="you@example.com"
+              autoComplete="email"
+            />
+            {errors.email && <span className="mg-field-error">{errors.email}</span>}
+          </div>
+
+          {/* Password */}
+          <div className="mg-field">
+            <label className="mg-label" htmlFor="register-password">
+              Password
+            </label>
+            <div className="mg-input-wrap">
+              <input
+                id="register-password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                className={`mg-input${errors.password ? " mg-input--error" : ""}`}
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="At least 6 characters"
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                className="mg-reveal"
+                onClick={() => setShowPassword(!showPassword)}
               >
-                <div
-                  style={{
-                    height: "100%",
-                    width: `${(passwordStrength / 4) * 100}%`,
-                    background: strengthColors[passwordStrength],
-                    transition: "width 0.3s, background 0.3s",
-                  }}
-                />
-              </div>
-              <span style={{ fontSize: "0.75rem", color: strengthColors[passwordStrength] }}>
-                {strengthLabels[passwordStrength]}
-              </span>
+                {showPassword ? "Hide" : "Show"}
+              </button>
             </div>
-          )}
-          {errors.password && (
-            <span className="error-message" style={{ fontSize: "0.8rem" }}>
-              {errors.password}
-            </span>
-          )}
-        </label>
 
-        {/* Confirm Password */}
-        <label>
-          Confirm Password
-          <div style={{ position: "relative" }}>
-            <input
-              name="confirmPassword"
-              type={showConfirm ? "text" : "password"}
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Re-enter your password"
-              autoComplete="new-password"
-              style={{ paddingRight: "40px", width: "100%" }}
-            />
+            {formData.password.length > 0 && (
+              <div className="mg-strength" data-level={passwordStrength}>
+                <div className="mg-strength-track">
+                  <div className="mg-strength-bar" />
+                </div>
+                <span className="mg-strength-label">
+                  {strengthLabels[passwordStrength]}
+                </span>
+              </div>
+            )}
+
+            {errors.password && (
+              <span className="mg-field-error">{errors.password}</span>
+            )}
+          </div>
+
+          {/* Confirm Password */}
+          <div className="mg-field">
+            <label className="mg-label" htmlFor="register-confirm">
+              Confirm Password
+            </label>
+            <div className="mg-input-wrap">
+              <input
+                id="register-confirm"
+                name="confirmPassword"
+                type={showConfirm ? "text" : "password"}
+                className={`mg-input${
+                  errors.confirmPassword ? " mg-input--error" : ""
+                }`}
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Re-enter your password"
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                className="mg-reveal"
+                onClick={() => setShowConfirm(!showConfirm)}
+              >
+                {showConfirm ? "Hide" : "Show"}
+              </button>
+            </div>
+            {errors.confirmPassword && (
+              <span className="mg-field-error">{errors.confirmPassword}</span>
+            )}
+          </div>
+
+          <div className="mg-auth-actions">
             <button
-              type="button"
-              onClick={() => setShowConfirm(!showConfirm)}
-              style={{
-                position: "absolute", right: "8px", top: "50%",
-                transform: "translateY(-50%)", background: "none",
-                border: "none", cursor: "pointer", padding: "0",
-                color: "#666", fontSize: "0.8rem",
-              }}
+              type="submit"
+              className="mg-btn mg-btn--gold mg-btn--block"
+              disabled={loading}
             >
-              {showConfirm ? "Hide" : "Show"}
+              {loading ? "Creating account..." : "Register"}
             </button>
           </div>
-          {errors.confirmPassword && (
-            <span className="error-message" style={{ fontSize: "0.8rem" }}>
-              {errors.confirmPassword}
-            </span>
-          )}
-        </label>
+        </form>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Creating account…" : "Create Account"}
-        </button>
-      </form>
-
-      <p style={{ marginTop: "16px" }}>
-        Already have an account? <Link to="/login">Sign in</Link>
-      </p>
+        <div className="mg-auth-links">
+          <span>
+            Already have an account?{" "}
+            <Link className="mg-link mg-link--gold" to="/login">
+              Login
+            </Link>
+          </span>
+        </div>
+      </div>
     </section>
   );
 }
