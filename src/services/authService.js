@@ -1,3 +1,5 @@
+import { getAllUsers } from "./adminUserService";
+
 export function getCurrentUser() {
   const user = localStorage.getItem("currentUser");
 
@@ -5,23 +7,16 @@ export function getCurrentUser() {
     return null;
   }
 
-  return JSON.parse(user);
+  try {
+    return JSON.parse(user);
+  } catch {
+    localStorage.removeItem("currentUser");
+    return null;
+  }
 }
 
 export function login(username, password) {
-  const mockUsers = [
-    {
-      username: "admin",
-      password: "adminPW",
-      role: "admin",
-      name: "Admin Account",
-    },
-    {
-      username: "employee",
-      password: "employeePW",
-      role: "employee",
-      name: "Employee Account",
-    },
+  const customerUsers = [
     {
       username: "customer",
       password: "customerPW",
@@ -30,7 +25,7 @@ export function login(username, password) {
     },
   ];
 
-  const foundUser = mockUsers.find(
+  const foundUser = [...getAllUsers(), ...customerUsers].find(
     (user) => user.username === username && user.password === password
   );
 
@@ -41,11 +36,28 @@ export function login(username, password) {
     };
   }
 
-  localStorage.setItem("currentUser", JSON.stringify(foundUser));
+  if (foundUser.status === "Inactive") {
+    return {
+      success: false,
+      message: "This account is inactive.",
+    };
+  }
+
+  const authenticatedUser = {
+    id: foundUser.id,
+    username: foundUser.username,
+    role: foundUser.role,
+    isAdmin: foundUser.isAdmin,
+    name: foundUser.fullName || foundUser.name,
+    email: foundUser.email,
+    status: foundUser.status || "Active",
+  };
+
+  localStorage.setItem("currentUser", JSON.stringify(authenticatedUser));
 
   return {
     success: true,
-    user: foundUser,
+    user: authenticatedUser,
   };
 }
 
