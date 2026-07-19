@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { getCurrentUser } from "../../services/authService";
+import { getCurrentUser, logout } from "../../services/authService";
+import "../../styles/customer-account.css";
 
 // Read order data defensively because it comes from localStorage.
 function readUserOrders(username) {
@@ -25,13 +26,37 @@ function getOrderTotal(order) {
   return Number.isFinite(total) ? total : 0;
 }
 
+function formatDate(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return "Date unavailable";
+  return date.toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+// Status text is always paired with a colour class.
+function statusClass(status) {
+  switch (status) {
+    case "Completed":
+      return "mg-status mg-status--completed";
+    case "Cancelled":
+      return "mg-status mg-status--cancelled";
+    case "Processing":
+      return "mg-status mg-status--processing";
+    default:
+      return "mg-status mg-status--pending";
+  }
+}
+
 function OrderHistory() {
   const navigate = useNavigate();
-  // Initialize user and orders before rendering to satisfy the hook lint rules.
   const [user] = useState(() => getCurrentUser());
   const [orders, setOrders] = useState(() =>
     user ? readUserOrders(user.username) : []
   );
+  const [openOrderId, setOpenOrderId] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -53,167 +78,229 @@ function OrderHistory() {
     saveOrders(user.username, updated);
   }
 
-  const totalSpent = orders
-    .filter((order) => order?.status === "Completed")
-    .reduce((sum, order) => sum + getOrderTotal(order), 0);
-  const completedCount = orders.filter((order) => order?.status === "Completed").length;
+  function handleLogout() {
+    logout();
+    navigate("/login");
+  }
 
-  // Status badge colors are kept local because they are only used in this table.
-  const statusStyle = {
-    Completed: {
-      color: "#2e7d32",
-      background: "#e8f5e9",
-      border: "1px solid #a5d6a7",
-    },
-    Pending: {
-      color: "#e65100",
-      background: "#fff3e0",
-      border: "1px solid #ffcc80",
-    },
-    Processing: {
-      color: "#1565c0",
-      background: "#e3f2fd",
-      border: "1px solid #90caf9",
-    },
-  };
+  function toggleDetails(key) {
+    setOpenOrderId((current) => (current === key ? null : key));
+  }
 
   if (!user) return null;
 
+  const completedOrders = orders.filter((order) => order?.status === "Completed");
+  const totalSpent = completedOrders.reduce(
+    (sum, order) => sum + getOrderTotal(order),
+    0
+  );
+
+  const displayName = user.name || user.username || "Customer";
+  const email = user.email || user.username || "Not provided";
+  const initials = displayName
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  const stats = [
+    { label: "Total Orders", value: orders.length },
+    { label: "Completed", value: completedOrders.length },
+    { label: "Total Spent", value: `$${totalSpent.toFixed(2)}` },
+  ];
+
   return (
-    <section>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "20px",
-        }}
-      >
-        <h1 style={{ margin: 0 }}>Order History</h1>
-        <Link to="/customer/profile">
-          <button>Back to Profile</button>
-        </Link>
-      </div>
+    <section className="mg-account">
+      <div className="mg-account-shell">
+        <h1 className="mg-page-title">Order History</h1>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "12px",
-          marginBottom: "24px",
-        }}
-      >
-        {[
-          { label: "Total Orders", value: orders.length },
-          { label: "Completed", value: completedCount },
-          { label: "Total Spent", value: `$${totalSpent.toFixed(2)}` },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            style={{
-              background: "white",
-              border: "1px solid #ccc",
-              padding: "16px",
-              textAlign: "center",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: "bold",
-                color: "#1a1a2e",
-              }}
-            >
-              {stat.value}
-            </div>
-            <div style={{ fontSize: "0.8rem", color: "#666", marginTop: "4px" }}>
-              {stat.label}
-            </div>
-          </div>
-        ))}
-      </div>
+        <div className="mg-account-grid">
+          {/* ---------- left column ---------- */}
+          <aside className="mg-side-card">
+            <div className="mg-avatar">{initials || "?"}</div>
+            <h2 className="mg-side-name">{displayName}</h2>
+            <p className="mg-side-email">{email}</p>
+            <span className="mg-badge">Guild Member</span>
 
-      {orders.length === 0 ? (
-        <div
-          style={{
-            background: "white",
-            border: "1px solid #ccc",
-            padding: "40px",
-            textAlign: "center",
-            color: "#888",
-          }}
-        >
-          <p style={{ fontSize: "1.1rem" }}>No orders yet.</p>
-          <Link to="/customer/products">
-            <button style={{ marginTop: "12px" }}>Start Shopping</button>
-          </Link>
+            <nav className="mg-side-nav">
+              <Link className="mg-side-link" to="/customer/profile">
+                Profile
+              </Link>
+              <Link className="mg-side-link is-active" to="/customer/orders">
+                Order History
+              </Link>
+              <Link className="mg-side-link" to="/customer/products">
+                Continue Shopping
+              </Link>
+              <button
+                type="button"
+                className="mg-btn mg-btn--danger mg-btn--block"
+                onClick={handleLogout}
+              >
+                Sign Out
+              </button>
+            </nav>
+          </aside>
+
+          {/* ---------- right column ---------- */}
+          <main className="mg-account-main">
+            <div className="mg-stats">
+              {stats.map((stat) => (
+                <div className="mg-stat" key={stat.label}>
+                  <div className="mg-stat-value">{stat.value}</div>
+                  <span className="mg-stat-label">{stat.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mg-card">
+              <div className="mg-card-head">
+                <h2 className="mg-card-title">Your Orders</h2>
+              </div>
+
+              {orders.length === 0 ? (
+                <div className="mg-empty">
+                  <p>No orders yet.</p>
+                  <Link className="mg-btn mg-btn--gold" to="/customer/products">
+                    Start Shopping
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  {/* Desktop / tablet table */}
+                  <div className="mg-table-wrap">
+                    <table className="mg-table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Order ID</th>
+                          <th scope="col">Order Date</th>
+                          <th scope="col">Total</th>
+                          <th scope="col">Status</th>
+                          <th scope="col">Details</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {orders.map((order, index) => {
+                          const key = order?.id || `order-${index}`;
+                          const orderId = order?.id || `#${index + 1}`;
+                          const isOpen = openOrderId === key;
+
+                          return (
+                            <Fragment key={key}>
+                              <tr>
+                                <td className="mg-cell-id">{orderId}</td>
+                                <td>{formatDate(order?.date)}</td>
+                                <td className="mg-cell-total">
+                                  ${getOrderTotal(order).toFixed(2)}
+                                </td>
+                                <td>
+                                  <span className={statusClass(order?.status)}>
+                                    {order?.status || "Pending"}
+                                  </span>
+                                </td>
+                                <td>
+                                  <div className="mg-cell-actions">
+                                    <button
+                                      type="button"
+                                      className="mg-btn mg-btn--ghost mg-btn--small"
+                                      onClick={() => toggleDetails(key)}
+                                      aria-expanded={isOpen}
+                                    >
+                                      {isOpen ? "Hide Details" : "View Details"}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="mg-btn mg-btn--danger mg-btn--small"
+                                      onClick={() => handleDelete(index)}
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+
+                              {isOpen && (
+                                <tr className="mg-detail-row">
+                                  <td colSpan={5}>
+                                    <ul className="mg-detail-list">
+                                      <li>Item: {order?.item || "Order item"}</li>
+                                      <li>Order ID: {orderId}</li>
+                                      <li>Placed: {formatDate(order?.date)}</li>
+                                      <li>
+                                        Total: ${getOrderTotal(order).toFixed(2)}
+                                      </li>
+                                    </ul>
+                                  </td>
+                                </tr>
+                              )}
+                            </Fragment>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile: one card per order */}
+                  <div className="mg-order-cards">
+                    {orders.map((order, index) => {
+                      const key = order?.id || `order-${index}`;
+                      const orderId = order?.id || `#${index + 1}`;
+                      const isOpen = openOrderId === key;
+
+                      return (
+                        <article className="mg-order-card" key={`card-${key}`}>
+                          <div className="mg-order-card-head">
+                            <span className="mg-cell-id">{orderId}</span>
+                            <span className={statusClass(order?.status)}>
+                              {order?.status || "Pending"}
+                            </span>
+                          </div>
+
+                          <dl>
+                            <div className="mg-order-row">
+                              <dt>Order Date</dt>
+                              <dd>{formatDate(order?.date)}</dd>
+                            </div>
+                            <div className="mg-order-row">
+                              <dt>Total</dt>
+                              <dd>${getOrderTotal(order).toFixed(2)}</dd>
+                            </div>
+                            {isOpen && (
+                              <div className="mg-order-row">
+                                <dt>Item</dt>
+                                <dd>{order?.item || "Order item"}</dd>
+                              </div>
+                            )}
+                          </dl>
+
+                          <div className="mg-order-card-actions">
+                            <button
+                              type="button"
+                              className="mg-btn mg-btn--ghost mg-btn--small"
+                              onClick={() => toggleDetails(key)}
+                              aria-expanded={isOpen}
+                            >
+                              {isOpen ? "Hide Details" : "View Details"}
+                            </button>
+                            <button
+                              type="button"
+                              className="mg-btn mg-btn--danger mg-btn--small"
+                              onClick={() => handleDelete(index)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          </main>
         </div>
-      ) : (
-        <table className="basic-table">
-          <thead>
-            <tr>
-              <th>Order #</th>
-              <th>Item</th>
-              <th>Date</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order, index) => {
-              // Normalize each row so incomplete order records still render.
-              const total = getOrderTotal(order);
-              const date = order?.date ? new Date(order.date) : null;
-              const isValidDate = date && !Number.isNaN(date.getTime());
-
-              return (
-                <tr key={order?.id || index}>
-                  <td style={{ fontWeight: "bold" }}>{order?.id || `#${index + 1}`}</td>
-                  <td>{order?.item || "Order item"}</td>
-                  <td>
-                    {isValidDate
-                      ? date.toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
-                      : "Date unavailable"}
-                  </td>
-                  <td style={{ fontWeight: "bold" }}>${total.toFixed(2)}</td>
-                  <td>
-                    <span
-                      style={{
-                        padding: "2px 10px",
-                        borderRadius: "12px",
-                        fontSize: "0.8rem",
-                        fontWeight: "bold",
-                        ...(statusStyle[order?.status] || statusStyle.Pending),
-                      }}
-                    >
-                      {order?.status || "Pending"}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      onClick={() => handleDelete(index)}
-                      style={{
-                        color: "#b00020",
-                        borderColor: "#b00020",
-                        background: "none",
-                        padding: "4px 10px",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
+      </div>
     </section>
   );
 }

@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { login } from "../../services/authService";
+import "../../styles/customer-account.css";
 
 function Login() {
   const navigate = useNavigate();
 
-  const [username, setUsername]     = useState("");
-  const [password, setPassword]     = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors]         = useState({});
-  const [loading, setLoading]       = useState(false);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   function validate() {
     const newErrors = {};
     if (!username.trim()) newErrors.username = "Username or email is required.";
-    if (!password)        newErrors.password = "Password is required.";
+    if (!password) newErrors.password = "Password is required.";
     return newErrors;
   }
 
@@ -31,8 +32,8 @@ function Login() {
     setErrors({});
 
     // -------------------------------------------------------
-    // STEP 1: 先查 Register.jsx 存进 localStorage 的注册用户
-    //         key = "registeredUsers"，格式与 authService 兼容
+    // STEP 1: check users saved by Register.jsx in localStorage
+    //         key = "registeredUsers", format matches authService
     // -------------------------------------------------------
     const registeredUsers = JSON.parse(
       localStorage.getItem("registeredUsers") || "[]"
@@ -44,16 +45,14 @@ function Login() {
     );
 
     if (registeredUser) {
-      // 用与 authService 完全相同的 key 写入 session
-      // 这样 getCurrentUser() 和 logout() 都能正常工作
       localStorage.setItem("currentUser", JSON.stringify(registeredUser));
       navigate("/customer/home");
       return;
     }
 
     // -------------------------------------------------------
-    // STEP 2: 注册用户里找不到，fallback 到 authService
-    //         处理 admin / employee / 原始 customer 账号
+    // STEP 2: fall back to authService for admin / employee /
+    //         seeded customer accounts
     // -------------------------------------------------------
     const result = login(username, password);
 
@@ -73,90 +72,97 @@ function Login() {
   }
 
   return (
-    <section className="login-page">
-      <h1>Sign In</h1>
-      <p style={{ color: "#666", marginBottom: "20px" }}>
-        Access your Trade Web account
-      </p>
+    <section className="mg-auth">
+      <div className="mg-auth-card">
+        <h1 className="mg-auth-title">Login</h1>
+        <p className="mg-auth-subtitle">Access your Entertainment Guild account</p>
 
-      {errors.general && (
-        <p className="error-message">{errors.general}</p>
-      )}
+        {errors.general && (
+          <p className="mg-alert mg-alert--error">{errors.general}</p>
+        )}
 
-      <form onSubmit={handleSubmit} className="auth-form" noValidate>
-
-        <label>
-          Username / Email
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => {
-              setUsername(e.target.value);
-              setErrors((prev) => ({ ...prev, username: "" }));
-            }}
-            placeholder="Enter your username or email"
-            autoComplete="username"
-          />
-          {errors.username && (
-            <span className="error-message" style={{ fontSize: "0.8rem" }}>
-              {errors.username}
-            </span>
-          )}
-        </label>
-
-        <label>
-          Password
-          <div style={{ position: "relative" }}>
+        <form onSubmit={handleSubmit} className="mg-form" noValidate>
+          <div className="mg-field">
+            <label className="mg-label" htmlFor="login-username">
+              Email / Username
+            </label>
             <input
-              type={showPassword ? "text" : "password"}
-              value={password}
+              id="login-username"
+              type="text"
+              className={`mg-input${errors.username ? " mg-input--error" : ""}`}
+              value={username}
               onChange={(e) => {
-                setPassword(e.target.value);
-                setErrors((prev) => ({ ...prev, password: "" }));
+                setUsername(e.target.value);
+                setErrors((prev) => ({ ...prev, username: "" }));
               }}
-              placeholder="Enter your password"
-              autoComplete="current-password"
-              style={{ paddingRight: "40px", width: "100%" }}
+              placeholder="Enter your email or username"
+              autoComplete="username"
             />
+            {errors.username && (
+              <span className="mg-field-error">{errors.username}</span>
+            )}
+          </div>
+
+          <div className="mg-field">
+            <label className="mg-label" htmlFor="login-password">
+              Password
+            </label>
+            <div className="mg-input-wrap">
+              <input
+                id="login-password"
+                type={showPassword ? "text" : "password"}
+                className={`mg-input${errors.password ? " mg-input--error" : ""}`}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrors((prev) => ({ ...prev, password: "" }));
+                }}
+                placeholder="Enter your password"
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                className="mg-reveal"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+            {errors.password && (
+              <span className="mg-field-error">{errors.password}</span>
+            )}
+          </div>
+
+          <div className="mg-auth-actions">
             <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              style={{
-                position: "absolute", right: "8px", top: "50%",
-                transform: "translateY(-50%)", background: "none",
-                border: "none", cursor: "pointer", padding: "0",
-                color: "#666", fontSize: "0.8rem",
-              }}
+              type="submit"
+              className="mg-btn mg-btn--gold mg-btn--block"
+              disabled={loading}
             >
-              {showPassword ? "Hide" : "Show"}
+              {loading ? "Signing in..." : "Login"}
             </button>
           </div>
-          {errors.password && (
-            <span className="error-message" style={{ fontSize: "0.8rem" }}>
-              {errors.password}
-            </span>
-          )}
-        </label>
+        </form>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Signing in…" : "Sign In"}
-        </button>
-      </form>
+        <div className="mg-auth-links">
+          <Link className="mg-link" to="/login">
+            Forgot Password?
+          </Link>
+          <span>
+            Do not have an account?{" "}
+            <Link className="mg-link mg-link--gold" to="/register">
+              Register
+            </Link>
+          </span>
+        </div>
 
-      <p style={{ marginTop: "16px" }}>
-        Don&apos;t have an account? <Link to="/register">Register here</Link>
-      </p>
-
-      <div
-        style={{
-          marginTop: "24px", padding: "12px",
-          background: "#f0f4ff", border: "1px solid #c7d2fe",
-          borderRadius: "4px", fontSize: "0.8rem", color: "#444",
-        }}
-      >
-        <strong>Demo accounts:</strong><br />
-        Customer: <code>customer</code> / <code>customerPW</code><br />
-        Admin: <code>admin</code> / <code>adminPW</code>
+        <div className="mg-demo">
+          <strong>Demo accounts</strong>
+          <br />
+          Customer: <code>customer</code> / <code>customerPW</code>
+          <br />
+          Admin: <code>admin</code> / <code>adminPW</code>
+        </div>
       </div>
     </section>
   );
