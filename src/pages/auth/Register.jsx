@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import "../../styles/customer-account.css";
 
 function Register() {
   const navigate = useNavigate();

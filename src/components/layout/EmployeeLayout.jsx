@@ -19,7 +19,7 @@ function EmployeeLayout() {
   }
 
   return (
-    <div className="employee-layout">
+    <div className="employee-theme employee-layout">
       <header className="employee-header">
         <div className="employee-brand-mark">EG</div>
         <div>

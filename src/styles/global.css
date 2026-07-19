@@ -1,77 +1,1174 @@
-* {
+/*
+  Entertainment Guild Global Design System
+
+  Change the values in :root to update the customer theme.
+  Admin and employee colours are controlled by the theme overrides below.
+  Reuse the shared component classes before creating page-specific styles.
+*/
+
+/* ==========================================================================
+   1. Theme Variables
+   ========================================================================== */
+:root {
+  /* Customer Midnight Guild theme */
+  --color-background: #0b1020;
+  --color-surface: #121a2b;
+  --color-surface-secondary: #1a2438;
+  --color-surface-hover: #202b42;
+
+  --color-primary: #e6b655;
+  --color-primary-hover: #f2c86b;
+  --color-primary-text: #111827;
+
+  --color-text: #f7f3e8;
+  --color-text-muted: #aab4c5;
+  --color-border: #2a3852;
+
+  --color-success: #23825f;
+  --color-warning: #a85d00;
+  --color-danger: #c73e3e;
+  --color-info: #2b6cb0;
+  --color-navigation: #07142f;
+  --color-navigation-hover: #122142;
+  --color-navigation-active: #1a2a52;
+  --color-navigation-text: #f7f3e8;
+  --color-navigation-muted: #aab4c5;
+
+  /* Typography */
+  --font-heading: Georgia, "Times New Roman", serif;
+  --font-body: Inter, "Segoe UI", Arial, sans-serif;
+
+  /* Layout */
+  --container-width: 1200px;
+  --header-height: 72px;
+
+  /* Radius */
+  --radius-small: 6px;
+  --radius-medium: 8px;
+  --radius-large: 12px;
+  --radius-round: 999px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Effects */
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.18);
+  --shadow-hover: 0 14px 34px rgba(0, 0, 0, 0.25);
+  --transition-fast: 180ms ease;
+
+  /* Semantic aliases for state backgrounds */
+  --color-success-surface: rgba(35, 130, 95, 0.16);
+  --color-warning-surface: rgba(168, 93, 0, 0.16);
+  --color-danger-surface: rgba(199, 62, 62, 0.16);
+  --color-info-surface: rgba(43, 108, 176, 0.16);
+  --color-primary-surface: rgba(230, 182, 85, 0.14);
+  --color-disabled: rgba(170, 180, 197, 0.55);
+}
+
+.admin-theme,
+.employee-theme,
+[data-theme="admin"],
+[data-theme="employee"] {
+  --color-background: #f4f6fa;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #edf1f6;
+  --color-surface-hover: #f8f1df;
+
+  --color-primary: #9a6816;
+  --color-primary-hover: #7b500e;
+  --color-primary-text: #ffffff;
+
+  --color-text: #172033;
+  --color-text-muted: #667085;
+  --color-border: #dce2ea;
+
+  --shadow-card: 0 8px 24px rgba(23, 32, 51, 0.08);
+  --shadow-hover: 0 12px 28px rgba(23, 32, 51, 0.14);
+  --color-success-surface: rgba(35, 130, 95, 0.12);
+  --color-warning-surface: rgba(168, 93, 0, 0.12);
+  --color-danger-surface: rgba(199, 62, 62, 0.12);
+  --color-info-surface: rgba(43, 108, 176, 0.12);
+  --color-primary-surface: rgba(154, 104, 22, 0.12);
+}
+
+/* ==========================================================================
+   2. Reset and Base Styles
+   ========================================================================== */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--color-background);
 }
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f7f7f7;
-  color: #222;
+  min-width: 320px;
+  overflow-x: hidden;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 button {
   cursor: pointer;
-  padding: 8px 12px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+img {
+  display: block;
+  max-width: 100%;
 }
 
 a {
-  text-decoration: none;
   color: inherit;
+  text-decoration: none;
 }
 
+p {
+  margin: 0;
+}
+
+/* ==========================================================================
+   3. Typography
+   ========================================================================== */
+h1,
+h2,
+h3,
+h4 {
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+h1 {
+  margin: 0 0 var(--space-4);
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+h2 {
+  margin: 0 0 var(--space-3);
+  font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+}
+
+h3 {
+  margin: 0 0 var(--space-2);
+  font-size: 1.15rem;
+}
+
+small,
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+code {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-small);
+  background: var(--color-surface-secondary);
+  color: var(--color-primary);
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+/* ==========================================================================
+   4. Page Layout
+   ========================================================================== */
+.app-shell {
+  min-height: 100svh;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+.page-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.page-container {
+  width: min(100% - calc(var(--space-6) * 2), var(--container-width));
+  margin-inline: auto;
+}
+
+.page-header {
+  margin-bottom: var(--space-6);
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-5);
+}
+
+/* ==========================================================================
+   5. Header and Navigation
+   ========================================================================== */
+.site-header,
+.auth-header,
+.customer-header,
+.admin-header,
+.employee-header {
+  min-height: var(--header-height);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.customer-header,
+.admin-header,
+.employee-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 0 var(--space-6);
+}
+
+.customer-logo,
+.auth-header a,
+.admin-logo,
+.employee-brand-mark {
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.customer-nav,
+.sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.customer-nav a,
+.sidebar-link {
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast), background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.customer-nav a:hover,
+.sidebar-link:hover,
+.sidebar-link.active {
+  color: var(--color-primary);
+}
+
+/* ==========================================================================
+   6. Cards
+   ========================================================================== */
+.card,
+.content-card,
+.auth-card,
+.profile-card,
+.summary-card,
+.mg-card,
+.mg-auth-card,
+.mg-side-card,
+.mg-stat,
+.dashboard-panel,
+.dashboard-header,
+.dashboard-cards > div {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.card,
+.content-card,
+.auth-card,
+.profile-card,
+.summary-card,
+.mg-card,
+.mg-auth-card,
+.mg-side-card,
+.mg-stat {
+  padding: var(--space-6);
+}
+
+.card-clickable,
+.quick-action-card,
+.category-card,
+.product-card-link {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast),
+    background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.card-clickable:hover,
+.quick-action-card:hover,
+.category-card:hover,
+.product-card-link:hover {
+  border-color: var(--color-primary);
+  background: var(--color-surface-hover);
+  box-shadow: var(--shadow-hover);
+}
+
+/* ==========================================================================
+   7. Buttons
+   ========================================================================== */
+.btn,
+.mg-btn,
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-secondary);
+  color: var(--color-text);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn:hover,
+.mg-btn:hover,
+button:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: var(--color-surface-hover);
+}
+
+.btn:active,
+.mg-btn:active,
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-primary,
+.mg-btn--gold,
+.button-link {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.btn-primary:hover,
+.mg-btn--gold:hover:not(:disabled),
+.button-link:hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-primary-hover);
+  color: var(--color-primary-text);
+}
+
+.btn-secondary,
+.secondary-button,
+.mg-btn--ghost {
+  border-color: var(--color-primary);
+  background: transparent;
+  color: var(--color-primary);
+}
+
+.btn-secondary:hover,
+.secondary-button:hover,
+.mg-btn--ghost:hover:not(:disabled) {
+  background: var(--color-primary-surface);
+  color: var(--color-primary-hover);
+}
+
+.btn-danger,
+.danger-button,
+.mg-btn--danger {
+  border-color: var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.btn-danger:hover,
+.danger-button:hover,
+.mg-btn--danger:hover:not(:disabled) {
+  background: var(--color-danger-surface);
+}
+
+.btn-ghost,
+.mg-btn--quiet {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.btn-icon {
+  width: 44px;
+  padding-inline: 0;
+}
+
+.mg-btn--small {
+  min-height: 36px;
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.85rem;
+}
+
+.mg-btn--block {
+  width: 100%;
+}
+
+/* ==========================================================================
+   8. Forms
+   ========================================================================== */
+.form-group,
+.mg-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-label,
+.mg-label,
+.auth-form label,
+.admin-form label,
+.checkout-form label {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.form-control,
+.form-select,
+.mg-input,
+.mg-select,
 input,
 select,
 textarea {
-  padding: 8px;
-  border: 1px solid #aaa;
-  border-radius: 2px;
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-secondary);
+  color: var(--color-text);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: auto;
+  min-height: auto;
+  accent-color: var(--color-primary);
+}
+
+.form-control::placeholder,
+.mg-input::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+
+.form-control:hover,
+.form-select:hover,
+.mg-input:hover,
+.mg-select:hover,
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--color-primary);
+}
+
+.form-control:focus,
+.form-select:focus,
+.mg-input:focus,
+.mg-select:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+  outline: 3px solid var(--color-primary-surface);
+  outline-offset: 1px;
+}
+
+.form-error,
+.form-help,
+.mg-field-error,
 .error-message {
-  color: #b00020;
-  margin-bottom: 12px;
+  font-size: 0.875rem;
 }
 
-.basic-table {
+.form-error,
+.mg-field-error,
+.error-message {
+  color: var(--color-danger);
+}
+
+.form-help {
+  color: var(--color-text-muted);
+}
+
+.mg-input--error,
+.form-control.is-error {
+  border-color: var(--color-danger);
+}
+
+.form-actions,
+.mg-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.mg-form,
+.auth-form,
+.admin-form,
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mg-input-wrap {
+  position: relative;
+}
+
+.mg-input-wrap .mg-input {
+  padding-right: 68px;
+}
+
+.mg-reveal {
+  position: absolute;
+  top: 50%;
+  right: var(--space-2);
+  min-height: 32px;
+  padding: var(--space-1) var(--space-2);
+  transform: translateY(-50%);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.mg-strength-track {
+  height: var(--space-1);
+  overflow: hidden;
+  border-radius: var(--radius-round);
+  background: var(--color-border);
+}
+
+.mg-strength-bar {
+  height: 100%;
+  width: 0;
+  background: var(--color-text-muted);
+  transition: width var(--transition-fast), background-color var(--transition-fast);
+}
+
+.mg-strength-label {
+  display: inline-block;
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.mg-strength[data-level="1"] .mg-strength-bar {
+  width: 25%;
+  background: var(--color-danger);
+}
+
+.mg-strength[data-level="2"] .mg-strength-bar {
+  width: 50%;
+  background: var(--color-warning);
+}
+
+.mg-strength[data-level="3"] .mg-strength-bar {
+  width: 75%;
+  background: var(--color-primary);
+}
+
+.mg-strength[data-level="4"] .mg-strength-bar {
+  width: 100%;
+  background: var(--color-success);
+}
+
+/* ==========================================================================
+   9. Tables
+   ========================================================================== */
+.table-wrapper,
+.admin-table-wrapper,
+.employee-table-wrap,
+.mg-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.data-table,
+.basic-table,
+.admin-table,
+.employee-table,
+.mg-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: var(--color-surface);
 }
 
+.data-table th,
 .basic-table th,
-.basic-table td {
-  border: 1px solid #ccc;
-  padding: 10px;
+.admin-table th,
+.employee-table th,
+.mg-table th {
+  background: var(--color-surface-secondary);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
   text-align: left;
 }
 
+.data-table th,
+.data-table td,
+.basic-table th,
+.basic-table td,
+.admin-table th,
+.admin-table td,
+.employee-table th,
+.employee-table td,
+.mg-table th,
+.mg-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.data-table tbody tr:hover,
+.basic-table tbody tr:hover,
+.admin-table tbody tr:hover,
+.employee-table tbody tr:hover,
+.mg-table tbody tr:hover {
+  background: var(--color-surface-hover);
+}
+
+.table-actions,
+.mg-cell-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.empty-state,
+.customer-empty-state,
+.employee-empty,
+.mg-empty {
+  padding: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* ==========================================================================
+   10. Status Badges
+   ========================================================================== */
+.status-badge,
+.status-pill,
+.mg-status,
+.employee-status,
+.employee-tag,
+.member-badge,
+.mg-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-round);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.status-active,
+.status-pill.active,
+.employee-status.is-active,
+.mg-status--completed {
+  background: var(--color-success-surface);
+  color: var(--color-success);
+}
+
+.status-inactive,
+.status-pending,
+.status-pill.inactive,
+.mg-status--pending,
+.mg-status--processing {
+  background: var(--color-warning-surface);
+  color: var(--color-warning);
+}
+
+.status-completed {
+  background: var(--color-success-surface);
+  color: var(--color-success);
+}
+
+.status-cancelled,
+.mg-status--cancelled {
+  background: var(--color-danger-surface);
+  color: var(--color-danger);
+}
+
+.mg-badge,
+.member-badge {
+  background: var(--color-primary-surface);
+  color: var(--color-primary);
+}
+
+/* ==========================================================================
+   11. Authentication Pages
+   ========================================================================== */
 .auth-layout {
-  min-height: 100vh;
-  background: #f7f7f7;
+  min-height: 100svh;
+  background: var(--color-background);
 }
 
 .auth-header {
-  padding: 16px 24px;
-  background: white;
-  border-bottom: 1px solid #ccc;
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-6);
 }
 
 .auth-main {
-  max-width: 420px;
-  margin: 60px auto;
-  padding: 24px;
-  background: white;
-  border: 1px solid #ccc;
+  min-height: calc(100svh - var(--header-height));
 }
 
-.auth-form label {
-  display: block;
-  margin-bottom: 14px;
+.auth-page,
+.mg-auth {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: calc(100svh - var(--header-height));
+  padding: var(--space-10) var(--space-4);
+  background: var(--color-background);
 }
 
-.auth-form input {
+.auth-card,
+.mg-auth-card {
   width: 100%;
-  display: block;
-  margin-top: 4px;
+  max-width: 440px;
+}
+
+.mg-auth-card--wide,
+.register-page .auth-card {
+  max-width: 500px;
+}
+
+.auth-card h1,
+.mg-auth-title {
+  margin-bottom: var(--space-2);
+  font-family: var(--font-heading);
+}
+
+.mg-auth-subtitle {
+  margin-bottom: var(--space-6);
+  color: var(--color-text-muted);
+}
+
+.auth-footer,
+.mg-auth-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.auth-footer a,
+.mg-link,
+.mg-link--gold {
+  color: var(--color-primary);
+  transition: color var(--transition-fast);
+}
+
+.auth-footer a:hover,
+.mg-link:hover,
+.mg-link--gold:hover {
+  color: var(--color-primary-hover);
+}
+
+.mg-demo {
+  margin-top: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-secondary);
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+}
+
+/* ==========================================================================
+   12. Customer Account Pages
+   ========================================================================== */
+.account-page,
+.mg-account {
+  min-height: calc(100svh - var(--header-height));
+  padding: var(--space-8) var(--space-4);
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+.mg-account-shell,
+.account-page .page-container {
+  width: min(100%, var(--container-width));
+  margin-inline: auto;
+}
+
+.mg-page-title {
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-family: var(--font-heading);
+}
+
+.account-layout,
+.mg-account-grid {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.account-sidebar,
+.mg-side-card {
+  text-align: center;
+}
+
+.account-content,
+.mg-account-main {
+  min-width: 0;
+}
+
+.profile-header,
+.mg-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.profile-avatar,
+.mg-avatar {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  margin-inline: auto;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-round);
+  background: var(--color-surface-secondary);
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: 1.7rem;
+}
+
+.profile-details,
+.mg-info-grid,
+.mg-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.profile-detail-item,
+.mg-info-item {
+  min-width: 0;
+}
+
+.mg-info-label,
+.mg-stat-label,
+.mg-card-note,
+.mg-side-email {
+  color: var(--color-text-muted);
+}
+
+.mg-info-value {
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.mg-side-name,
+.mg-card-title {
+  margin: 0;
+}
+
+.mg-side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.mg-side-link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-medium);
+  color: var(--color-text-muted);
+}
+
+.mg-side-link:hover,
+.mg-side-link.is-active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-surface);
+  color: var(--color-primary);
+}
+
+.mg-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.mg-stat {
+  text-align: center;
+}
+
+.mg-stat-value {
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+}
+
+.order-history,
+.mg-table {
+  min-width: 640px;
+}
+
+.mg-cell-id,
+.mg-cell-total {
+  color: var(--color-primary);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mg-detail-row td {
+  background: var(--color-surface-secondary);
+  color: var(--color-text-muted);
+}
+
+.mg-detail-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mg-order-cards {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.mg-order-card {
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: var(--color-surface-secondary);
+}
+
+.mg-order-card-head,
+.mg-order-row,
+.mg-order-card-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.mg-order-row dt,
+.mg-order-row dd {
+  margin: 0;
+}
+
+.mg-order-row dt {
+  color: var(--color-text-muted);
+}
+
+.mg-order-row dd {
+  text-align: right;
+}
+
+/* ==========================================================================
+   13. Utility Classes
+   ========================================================================== */
+.surface {
+  background: var(--color-surface);
+}
+
+.surface-secondary {
+  background: var(--color-surface-secondary);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.success-message,
+.mg-alert--success {
+  color: var(--color-success);
+}
+
+.mg-alert,
+.customer-success-message,
+.employee-alert {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-medium);
+}
+
+.mg-alert--error,
+.employee-alert {
+  border: 1px solid var(--color-danger);
+  background: var(--color-danger-surface);
+  color: var(--color-danger);
+}
+
+.mg-alert--success,
+.customer-success-message {
+  border: 1px solid var(--color-success);
+  background: var(--color-success-surface);
+}
+
+/* ==========================================================================
+   14. Responsive Design
+   ========================================================================== */
+@media (max-width: 1199px) {
+  .page-container {
+    width: min(100% - calc(var(--space-5) * 2), var(--container-width));
+  }
+
+  .customer-header,
+  .admin-header,
+  .employee-header {
+    padding-inline: var(--space-5);
+  }
+
+  .content-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .page-container {
+    width: calc(100% - calc(var(--space-4) * 2));
+  }
+
+  .customer-header,
+  .admin-header,
+  .employee-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: var(--space-3);
+    height: auto;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .customer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .auth-page,
+  .mg-auth,
+  .account-page,
+  .mg-account {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .auth-card,
+  .mg-auth-card,
+  .mg-auth-card--wide {
+    max-width: 100%;
+  }
+
+  .account-layout,
+  .mg-account-grid,
+  .profile-details,
+  .mg-info-grid,
+  .mg-form-grid,
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mg-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .btn,
+  .btn-primary,
+  .mg-form-actions .mg-btn {
+    width: 100%;
+  }
+
+  .mg-table-wrap {
+    display: none;
+  }
+
+  .mg-order-cards {
+    display: flex;
+  }
+}
+
+/* ==========================================================================
+   15. Reduced Motion and Accessibility
+   ========================================================================== */
+:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

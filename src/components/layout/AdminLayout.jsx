@@ -15,7 +15,7 @@ function AdminLayout() {
   ];
 
   return (
-    <div className="admin-layout">
+    <div className="admin-theme admin-layout">
       <Header systemName="Entertainment Guild Admin" />
 
       <div className="admin-body">
