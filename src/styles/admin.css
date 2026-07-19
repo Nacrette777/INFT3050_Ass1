@@ -61,11 +61,31 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-page-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
 }
 
 .admin-page-search {
-  margin: 12px 0;
   width: 260px;
+}
+
+.admin-page-toolbar label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
 }
 
 .admin-table {
@@ -79,6 +99,60 @@
   border: 1px solid #ccc;
   padding: 10px;
   text-align: left;
+}
+
+.table-input {
+  width: 100%;
+  min-width: 130px;
+}
+
+.table-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.danger-button {
+  border-color: #b00020;
+  color: #b00020;
+}
+
+.status-pill {
+  display: inline-block;
+  min-width: 70px;
+  padding: 4px 8px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  background: #f7f7f7;
+}
+
+.status-pill.active {
+  border-color: #238636;
+  color: #238636;
+  background: #eef8f0;
+}
+
+.status-pill.inactive {
+  border-color: #8a6d1d;
+  color: #8a6d1d;
+  background: #fff8df;
+}
+
+.empty-state {
+  padding: 24px;
+  text-align: center;
+  color: #666;
+}
+
+.success-message {
+  color: #146c2e;
+  margin-bottom: 12px;
+}
+
+.error-message ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
 }
 
 .chart-placeholder {
@@ -112,17 +186,221 @@
 .form-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background: white;
+}
+
+.dashboard-header h1 {
+  margin: 0 0 8px;
+}
+
+.dashboard-header p {
+  margin: 0;
+}
+
+.dashboard-welcome {
+  font-weight: bold;
+  text-align: right;
 }
 
 .dashboard-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 16px;
-  margin: 16px 0;
 }
 
 .dashboard-cards div {
   background: white;
   border: 1px solid #ccc;
   padding: 20px;
+}
+
+.dashboard-cards span {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.dashboard-cards strong {
+  display: block;
+  font-size: 28px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.dashboard-panel {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+}
+
+.dashboard-panel h2 {
+  margin-top: 0;
+}
+
+.quick-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.quick-action-card {
+  display: block;
+  padding: 14px;
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  font-weight: bold;
+}
+
+.quick-action-card:hover {
+  background: #eaeaea;
+}
+
+.dashboard-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chart-row-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.chart-track {
+  display: flex;
+  width: 100%;
+  height: 18px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+}
+
+.chart-bar.active {
+  background: #238636;
+}
+
+.chart-bar.inactive {
+  background: #d4a72c;
+}
+
+.recent-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recent-activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  background: #f7f7f7;
+}
+
+.recent-activity-item div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activity-role {
+  text-transform: capitalize;
+  color: #555;
+}
+
+.recent-activity-item small {
+  color: #666;
+}
+
+.system-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.system-status-item {
+  padding: 12px;
+  border: 1px solid #ddd;
+  background: #f7f7f7;
+}
+
+.system-status-item span {
+  display: block;
+  margin-bottom: 6px;
+  color: #555;
+}
+
+@media (max-width: 760px) {
+  .admin-header,
+  .admin-user-area,
+  .admin-body {
+    flex-wrap: wrap;
+  }
+
+  .admin-body {
+    display: block;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .admin-main-content {
+    padding: 16px;
+  }
+
+  .admin-page-search,
+  .admin-page-toolbar label,
+  .admin-page-toolbar select {
+    width: 100%;
+  }
+
+  .admin-form {
+    max-width: 100%;
+  }
+
+  .dashboard-header,
+  .dashboard-grid,
+  .recent-activity-item {
+    display: block;
+  }
+
+  .dashboard-welcome {
+    margin-top: 12px;
+    text-align: left;
+  }
+
+  .dashboard-panel {
+    margin-bottom: 16px;
+  }
+
+  .recent-activity-item .status-pill {
+    margin-top: 8px;
+  }
 }
