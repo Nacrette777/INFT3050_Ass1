@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { login } from "../../services/authService";
-import "../../styles/customer-account.css";
 
 function Login() {
   const navigate = useNavigate();

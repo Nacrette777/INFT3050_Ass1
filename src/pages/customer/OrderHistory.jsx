@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { getCurrentUser, logout } from "../../services/authService";
-import "../../styles/customer-account.css";
 
 // Read order data defensively because it comes from localStorage.
 function readUserOrders(username) {
