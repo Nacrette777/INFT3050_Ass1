@@ -1,5 +1,23 @@
 # React + Vite
 
+## Local NocoDB setup
+
+1. Start the local NocoDB container and open `http://localhost:8080`.
+2. Copy `.env.example` to `.env.local`.
+3. Add the local base ID, table IDs, and a valid NocoDB API token to `.env.local`.
+4. Install dependencies with `npm install`.
+5. Start the website with `npm run dev`.
+
+The employee pages use the NocoDB configuration below:
+
+- `VITE_NOCODB_BASE_URL`
+- `VITE_NOCODB_BASE_ID`
+- `VITE_NOCODB_USERS_TABLE_ID`
+- `VITE_NOCODB_PRODUCTS_TABLE_ID`
+- `VITE_NOCODB_TOKEN`
+
+Never commit `.env.local`, NocoDB passwords, or real API tokens. Only `.env.example` belongs in Git.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
