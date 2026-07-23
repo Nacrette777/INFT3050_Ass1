@@ -1,4 +1,7 @@
-const BASE_URL = import.meta.env.VITE_NOCODB_BASE_URL;
+const BASE_URL = import.meta.env.VITE_NOCODB_BASE_URL?.replace(
+  /\/+$/,
+  ""
+);
 const BASE_ID = import.meta.env.VITE_NOCODB_BASE_ID;
 const TOKEN = import.meta.env.VITE_NOCODB_TOKEN;
 
@@ -9,7 +12,7 @@ const TABLES = {
 
 function assertConfigured(tableId) {
   if (!BASE_URL || !BASE_ID || !TOKEN || !tableId) {
-    throw new Error("NocoDB is not configured. Add the required values to .env.");
+    throw new Error("NocoDB is not configured. Add the required values to .env.local.");
   }
 }
 
@@ -30,6 +33,14 @@ async function getTableRows(tableId, { fields, limit = 100 } = {}) {
   );
 
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("NocoDB authentication failed. Check VITE_NOCODB_TOKEN in .env.local.");
+    }
+
+    if (response.status === 403) {
+      throw new Error("NocoDB denied access. Check the API token permissions.");
+    }
+
     let message = `NocoDB request failed (${response.status})`;
     try {
       const body = await response.json();
