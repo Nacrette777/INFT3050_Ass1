@@ -1,0 +1,6 @@
+/*
+  Compatibility note:
+  Login, Register, Profile and Order History now use the shared Midnight Guild
+  styles from src/styles/global.css. Keep page-specific account rules in this
+  file only when they cannot be represented by the global component classes.
+*/
